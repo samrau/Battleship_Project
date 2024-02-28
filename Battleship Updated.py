@@ -157,3 +157,36 @@ if __name__ == "__main__":
 
 # 6. Think about a better strategy for a computer than random and implement it - maybe next to the previous hit?
 #Something that would improve the game is if I added in case the computer manages to successfully destroy a ship, automatically next steps would be to target the cells surrounding the destroyed one.
+
+def computer_turn(opponent_ships):
+    if not opponent_ships:
+        return False
+    
+    if not hasattr(computer_turn, "last_hit"):
+        x = random.randint(0, 9)
+        y = random.randint(0, 9)
+        computer_turn.last_hit = (x, y)
+    else:
+        x, y = computer_turn.last_hit
+        directions = [(1, 0), (-1, 0), (0, 1), (0, -1)]  
+        random.shuffle(directions)  
+        for dx, dy in directions:
+            new_x, new_y = x + dx, y + dy
+            if 0 <= new_x < 10 and 0 <= new_y < 10 and (new_x, new_y) not in opponent_ships:
+                x, y = new_x, new_y
+                break
+        else:
+            del computer_turn.last_hit
+            return computer_turn(opponent_ships)  
+    
+    target = (x, y)
+    if target in opponent_ships:
+        opponent_ships.remove(target)
+        print(f"Computer hit your ship of size {len(opponent_ships)+1}!")
+        if not opponent_ships:
+            print("Computer wins!")
+            return True
+        computer_turn.last_hit = (x, y)  
+    else:
+        print("Computer missed!")
+    return False
